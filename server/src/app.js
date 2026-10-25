@@ -47,3 +47,6 @@ app.use('/api', async (req, _res, next) => {
 app.use('/api', authRoutes, orgRoutes, employeeRoutes, attendanceRoutes, leaveRoutes, payrollRoutes, commsRoutes, aiRoutes);
 app.use('/api', (_req, _res, next) => next(new AppError(404, 'NOT_FOUND', 'Endpoint not found')));
 app.use(errorHandler);
+
+// Serverless hosts (Vercel) load this module directly and need the app as the default export.
+export default app;
