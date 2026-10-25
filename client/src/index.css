@@ -29,3 +29,7 @@ body { @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text
 .table td { @apply border-b border-slate-100 px-3 py-2 align-middle dark:border-slate-800/70; }
 .table tr:last-child td { @apply border-b-0; }
 }
+
+/* Scrollable with the mouse wheel / touch, but no visible scrollbar (sidebar menu). */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

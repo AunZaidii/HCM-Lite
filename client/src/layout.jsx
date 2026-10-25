@@ -117,7 +117,7 @@ export default function AppShell() {
   const menu = MENUS[user.role];
 
   const nav = (
-    <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-3">
+    <nav className="flex-1 space-y-0.5 no-scrollbar overflow-y-auto px-3 py-3">
       {menu.map((item, i) => item.section ? (
         <div key={i} className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">{item.section}</div>
       ) : (
