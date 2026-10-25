@@ -7,10 +7,17 @@ pg.types.setTypeParser(1700, (v) => (v === null ? null : parseFloat(v)));
 pg.types.setTypeParser(20, (v) => (v === null ? null : parseInt(v, 10)));
 pg.types.setTypeParser(1082, (v) => v);
 
+// On serverless hosts (Vercel) many instances run at once, so use Supabase's transaction pooler (port 6543),
+// which allows far more clients than the session pooler (5432), and keep each instance's pool small.
+const serverless = !!process.env.VERCEL;
+const connectionString = serverless
+  ? env.DATABASE_URL.replace(/\.pooler\.supabase\.com:5432\//, '.pooler.supabase.com:6543/')
+  : env.DATABASE_URL;
+
 export const pool = new pg.Pool({
-  connectionString: env.DATABASE_URL,
-  ssl: /localhost|127\.0\.0\.1/.test(env.DATABASE_URL) ? false : { rejectUnauthorized: false },
-  max: 5,
+  connectionString,
+  ssl: /localhost|127\.0\.0\.1/.test(connectionString) ? false : { rejectUnauthorized: false },
+  max: serverless ? 3 : 5,
 });
 
 // Idle connections can be dropped by the Supabase pooler; log and let the pool replace them instead of crashing.
