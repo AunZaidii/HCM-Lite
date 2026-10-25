@@ -16,7 +16,7 @@ export async function headcount({ asOf = todayLocal(), departmentId = null } = {
     `select count(*)::int as total,
             count(*) filter (where status = 'active')::int as active,
             count(*) filter (where status = 'probation')::int as probation
-     from employees where join_date <= $1 and (exit_date is null or exit_date >= $1) and exists (select 1 from users u where u.id = employees.user_id and u.is_active)
+     from employees where join_date <= $1 and (exit_date is null or exit_date >= $1) and exists (select 1 from users u where u.id = employees.user_id and (u.is_active or employees.exit_date is not null))
        and ($2::uuid is null or department_id = $2)`, [asOf, departmentId]);
   return row;
 }
@@ -24,7 +24,7 @@ export async function headcount({ asOf = todayLocal(), departmentId = null } = {
 export async function headcountByDepartment(asOf = todayLocal()) {
   return db.query(
     `select d.id as department_id, d.name as department, count(e.id)::int as headcount
-     from departments d left join employees e on e.department_id = d.id and e.join_date <= $1 and (e.exit_date is null or e.exit_date >= $1) and exists (select 1 from users u where u.id = e.user_id and u.is_active)
+     from departments d left join employees e on e.department_id = d.id and e.join_date <= $1 and (e.exit_date is null or e.exit_date >= $1) and exists (select 1 from users u where u.id = e.user_id and (u.is_active or e.exit_date is not null))
      group by d.id order by d.name`, [asOf]);
 }
 
@@ -148,7 +148,7 @@ export async function averageSalary({ departmentId = null } = {}) {
 }
 
 export async function genderAndTenure({ asOf = todayLocal(), departmentId = null } = {}) {
-  const where = `where join_date <= $1 and (exit_date is null or exit_date >= $1) and exists (select 1 from users u where u.id = employees.user_id and u.is_active) and ($2::uuid is null or department_id = $2)`;
+  const where = `where join_date <= $1 and (exit_date is null or exit_date >= $1) and exists (select 1 from users u where u.id = employees.user_id and (u.is_active or employees.exit_date is not null)) and ($2::uuid is null or department_id = $2)`;
   const gender = await db.query(`select coalesce(gender, 'unspecified') as gender, count(*)::int as count from employees ${where} group by 1 order by 1`, [asOf, departmentId]);
   const tenure = await db.query(
     `select band, count(*)::int as count from (
