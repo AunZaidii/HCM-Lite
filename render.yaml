@@ -1,0 +1,28 @@
+# Render blueprint for the backend API. Secrets are set in the Render dashboard (sync: false), never committed.
+services:
+  - type: web
+    name: hcm-lite-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm ci && npm run db:setup
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AI_API_KEY
+        sync: false
+      - key: AI_BASE_URL
+        value: https://generativelanguage.googleapis.com/v1beta/openai/
+      - key: AI_MODEL
+        value: gemini-3.5-flash-lite
+      - key: AI_FALLBACK_MODEL
+        value: gemini-3.1-flash-lite
+      - key: AI_REASONING_EFFORT
+        value: low
